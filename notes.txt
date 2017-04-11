@@ -1,0 +1,48 @@
+MongoDB
+First, install MongoDB by running the following command from the Terminal:
+
+$ sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv 7F0CEB10
+$ echo "deb http://repo.mongodb.org/apt/ubuntu trusty/mongodb-org/3.2 multiverse" | sudo tee /etc/apt/sources.list.d/mongodb-org-3.2.list
+$ sudo apt-get update
+$ sudo apt-get install -y mongodb-org
+
+Then, from the terminal, run the following command to start Mongo:
+
+$ mongod --bind_ip=$IP --nojournal
+
+For repair work...
+$ mongod --repair
+
+#Repo initialisation
+git add README.md
+git commit -m "first commit"
+git remote add origin https://github.com/dennisagyei/delivery-express.git
+git push -u origin master
+
+
+Git update
+git add .
+git commit -m "comments"
+git push
+
+
+###################################REFERENCES########################################################
+
+https://medium.freecodecamp.com/how-to-build-your-own-uber-for-x-app-33237955e253
+
+http://nextjuggernaut.com/blog/uber-like-apps-how-much-cost-develop/
+
+https://yalantis.com/blog/how-much-does-it-cost-to-create-an-on-demand-delivery-app/
+
+http://www.kenyadelivery.co.ke/
+http://stuart.com/
+https://www.dropoff.com/customer-testimonials/
+https://www.russsh.com/services/
+https://sendyit.com/personal
+https://booking.fastfast.delivery/
+http://www.dectar.com/courier-services-app
+http://www.deliv.co/
+
+############################NAMES###############################################################
+ParcelsExpress
+ParcelHub
