@@ -5,20 +5,21 @@ var app            = express();
 var mongoose       = require('mongoose');
 var bodyParser     = require('body-parser');
 var methodOverride = require('method-override');
-var nodemailer     = require("nodemailer");
-
+var passport       = require('passport');
+var flash          = require('connect-flash');
+var session        = require('express-session');
 // configuration ===========================================
 
 
 
 // config files
 var db = require('./config/db');
+require('./config/passport')(passport); // pass passport for configuration
 
 // set our port 3000 for dev Env
 var port = process.env.PORT || 8080; 
 
 // connect to our mongoDB database 
-// (uncomment after you enter in your own credentials in config/db.js)
 mongoose.connect(db.url); 
 
 // get all data/stuff of the body (POST) parameters
@@ -37,8 +38,19 @@ app.use(methodOverride('X-HTTP-Method-Override'));
 // set the static files location /public/img will be /img for users
 app.use(express.static(__dirname + '/client')); 
 
+// Configuration for passport
+//app.use(express.session({ secret: 'mySecretKey' })); // session secret
+app.use(session({
+    secret: 'ilovescotchscotchyscotchscotch', // session secret
+    resave: true,
+    saveUninitialized: true
+}));
+app.use(passport.initialize());
+app.use(passport.session()); // persistent login sessions
+app.use(flash()); // use connect-flash for flash messages stored in session
+
 // routes ==================================================
-require('./app/routes')(app); // configure our routes
+require('./app/routes')(app, passport); // load our routes and pass in our app and fully configured passport
 
 // start app ===============================================
 // startup our app at http://localhost:8080
@@ -50,9 +62,3 @@ console.log('Server listening at ' + port);
 // expose app           
 exports = module.exports = app;                         
 
-
-
-//p.listen(process.env.PORT || 3000, process.env.IP || "0.0.0.0", function(){
-  //var addr = server.address();
-  //nsole.log("Server listening at"  + ":" + process.env.PORT );
-//});

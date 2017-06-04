@@ -1,11 +1,12 @@
 //console.clear();
 
-var app = angular.module('app', ['ngRoute','ngCookies','ngResource','angular-flexslider','angularFileUpload']);
+var app = angular.module('app', []);
 
+/*
 app.config(function($routeProvider,$locationProvider){
 
-    $routeProvider.when('/',{ templateUrl : "home2.html" , controller : 'HomeCtrl'});
-    $routeProvider.when('/subscribe',{ templateUrl : "subscribe.html"});
+    $routeProvider.when('/',{ templateUrl : "index.html" , controller : 'HomeCtrl'});
+    $routeProvider.when('/login',{ templateUrl : "login.html"});
     $routeProvider.when('/faq',{ templateUrl : "faq.html"});
     $routeProvider.when('/contact',{ templateUrl : "contact.html"});
     $routeProvider.when('/compare/:id',{ templateUrl : "compare.html" , controller : 'MainCtrl'});
@@ -21,7 +22,7 @@ app.config(function($routeProvider,$locationProvider){
     $locationProvider.html5Mode(true);
 
 });
-
+*/
 app.filter('custNumFormat',function (){
     
     return function(input, symbol) {

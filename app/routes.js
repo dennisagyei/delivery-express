@@ -3,7 +3,7 @@
 // grab the models we just created
 var User = require('./models/user.js');
 
-module.exports = function(app) {
+module.exports = function(app, passport) {
 
         // server routes ===========================================================
         // handle things like api calls
@@ -11,52 +11,20 @@ module.exports = function(app) {
         var Mongoose = require('mongoose');
         var ObjectId = Mongoose.Types.ObjectId; 
         var jwt         = require('jwt-simple');
-        var secret ='devdacticIsAwesome';
+        var passport       = require('passport');
         
         app.get('/api', function (req, res) {
           res.send('API Version 1.0 is running');
         });
         
-        //Node Mailer API Calls 
-        var nodemailer = require('nodemailer');
-        var smtpTransport = nodemailer.createTransport({
-          host: "mailtrap.io",
-          port: 2525,
-          auth: {
-            user: "b8db91b8032261",
-            pass: "c20116e95c0b1f"
-          }
-        });
         
-        app.post('/api/sendmail',function(req,res){
-          
-            var htmlContent = '<p>Name: ' + req.body.name + '</p>' +
-                    '<p>Email: ' + req.body.email + '</p>' +
-                    '<p>Message: ' + req.body.message + '</p>';
-                    
-            var mailOptions={
-                from: req.body.name + ' <' + req.body.email + '>',
-                to : 'dennisagyei@gmail.com',
-                sender: req.body.email,
-                subject : req.body.subject,
-                html: htmlContent
-            }
-           
-            smtpTransport.sendMail(mailOptions, function(error, info){
-            if(error){
-                return console.log(error);
-            }
-              //console.log('Message sent: ' + info.response);
-              return res.json(201, info.response);
-            });
-        });
         //-=======================User Register API------------===============================
         app.post('/api/register', function(req, res) {
-            if (!req.body.name || !req.body.password) {
+            if (!req.body.username || !req.body.password) {
               res.json({success: false, msg: 'Please enter name and password.'});
             } else {
               var newUser = new User({
-                name: req.body.name,
+                name: req.body.username,
                 password: req.body.password
               });
               // save the user
@@ -93,205 +61,174 @@ module.exports = function(app) {
               }
             });
           });
-          //=========================================================================================================
-        //MAil chimp subscription
-        //list id 27df953d19
-        var Mailchimp = require('mailchimp-api-v3')
-        var mailchimp = new Mailchimp('4dabbf3013c7427a51d3b3d0844baee8-us10s');
-        
-        app.post('/api/signup', function (req, res) {
-          // save user details to your database.
-          var subscriber = {
-              email_address: req.body.email, 
-              status: "subscribed", 
-              merge_fields: {
-                  "FNAME": req.body.firstname,
-                  "LNAME": req.body.lastname,
-                  "PHONE": req.body.phone
-                   }
-          }
-      
           
-          mailchimp.post({
-            path : '/lists/27df953d19/members',
-            body : subscriber
-          },function (err, result) {
-            if (err){
-              res.send(err);
-            }else{
-              res.json(result);
-            }
-          });
           
-        });
-        
-        
-        /* GET /KPI listing. */
-        app.get('/api/kpi', function(req, res) {
-          Kpi.find(function (err, data) {
-            if (err){
-              res.send(err);
-            }else{
-              res.json(data);
-            }
+          //======================================================================
+          //==============Get login User----------------------------------------
+          //=================================================================================
+          app.get('/api/user',function(req, res) {
             
-          });
-        });
-        
-        
-        //Api for front page to get top Kpis
-        app.get('/api/kpi/get_top_kpi', function(req, res) {
-          Kpi.find().
-            limit(5).
-            sort('-createdAt').
-            select({ kpi_name: 1 }).
-            exec(
-            function (err, data) {
-            if (err){
-              res.send(err);
-            }else{
-              res.json(data);
+            if(req.user)
+            {
+              res.json(req.user );
+              //console.log(req.user.displayName); 
             }
-            
           });
-        });
-        
-        app.get('/api/kpi/get_kpi_stats', function(req, res) {
-          Metric.aggregate([
-                          ///{ $match : { featured : true } },  //Having clause
-                         //{ $limit : 4 },
-                         {
-                              $lookup:
-                                {
-                                  from: "kpis",
-                                  localField: "kpi_id",
-                                  foreignField: "_id",
-                                  as: "kpi_metric"
-                                }
-                         },{ $unwind:"$kpi_metric" },
-                         {
-                           $group:
-                             {
-                               _id: { kpi_name: "$kpi_metric.kpi_name", kpi_id: "$kpi_id",kpi_type: "$kpi_metric.kpi_type",  kpi_image: "$kpi_metric.kpi_image" },
-                               kpi_avg: { $avg: "$rate" },
-                               kpi_min: { $min: "$rate" },
-                               kpi_max: { $max: "$rate" },
-                               kpi_count: { $sum: 1 }
-                             }
-                         }]).
-            exec(
-            function (err, data) {
-            if (err){
-              res.send(err);
-            }else{
-              res.json(data);
-            }
-            
+          // =====================================
+          // HOME PAGE (with login links) ========
+          // =====================================
+          app.get('/', function(req, res) {
+              res.sendfile('./client/index.html'); // load the index.html file
           });
-        });
-        
-        app.get('/api/kpi/get_kpi_stats/:id', function(req, res) {
-          Metric.aggregate([
-                        { $match : { kpi_id : new ObjectId(req.params.id) } },  //Having clause
-                         {
-                              $lookup:
-                                {
-                                  from: "kpis",
-                                  localField: "kpi_id",
-                                  foreignField: "_id",
-                                  as: "kpi_metric"
-                                }
-                         },{ $unwind:"$kpi_metric" },
-                         {
-                           $group:
-                             {
-                               _id: { kpi_name: "$kpi_metric.kpi_name", kpi_id: "$kpi_id",kpi_type: "$kpi_metric.kpi_type",  kpi_image: "$kpi_metric.kpi_image" },
-                               kpi_avg: { $avg: "$rate" },
-                               kpi_min: { $min: "$rate" },
-                               kpi_max: { $max: "$rate" },
-                               kpi_count: { $sum: 1 }
-                             }
-                         }]).
-            exec(
-            function (err, data) {
-            if (err){
-              res.send(err);
-            }else{
-              res.json(data);
-            }
-            
-          });
-        });
 
-        app.get('/api/kpi/get_featured_kpi', function(req, res) {
-          Metric.aggregate([
-                         //{ $match : { featured : true } },  //Having clause
-                         //{ $limit : 4 },
-                         {
-                              $lookup:
-                                {
-                                  from: "kpis",
-                                  localField: "kpi_id",
-                                  foreignField: "_id",
-                                  as: "kpi_metric"
-                                }
-                         },{ $unwind:"$kpi_metric" },
-                         {
-                           $group:
-                             {
-                               _id: { kpi_name: "$kpi_metric.kpi_name", category: "$kpi_metric.category", kpi_id: "$kpi_id",kpi_type: "$kpi_metric.kpi_type", kpi_image: "$kpi_metric.kpi_image" },
-                               kpi_avg: { $avg: "$rate" },
-                               kpi_min: { $min: "$rate" },
-                               kpi_max: { $max: "$rate" },
-                               kpi_count: { $sum: 1 }
-                             }
-                         }]).
-            exec(
-            function (err, data) {
-            if (err){
-              res.send(err);
-            }else{
-              res.json(data);
-            }
-            
-          });
-        });
+          // =====================================
+        	// LOGIN ===============================
+        	// =====================================
+        	// show the login form
+        	app.get('/login', function(req, res) {
         
-        app.get('/api/kpi/get_featured_by_category/:id', function(req, res) {
-            Metric.aggregate([
-                         {
-                              $lookup:
-                                {
-                                  from: "kpis",
-                                  localField: "kpi_id",
-                                  foreignField: "_id",
-                                  as: "kpi_metric"
-                                }
-                         },{ $unwind:"$kpi_metric" },{ $match : { "kpi_metric.category" : req.params.id  } },
-                         {
-                           $group:
-                             {
-                               _id: { kpi_name: "$kpi_metric.kpi_name", category: "$kpi_metric.category", kpi_id: "$kpi_id",kpi_type: "$kpi_metric.kpi_type", kpi_image: "$kpi_metric.kpi_image" },
-                               kpi_avg: { $avg: "$rate" },
-                               kpi_min: { $min: "$rate" },
-                               kpi_max: { $max: "$rate" },
-                               kpi_count: { $sum: 1 }
-                             }
-                         }]).
-            exec(
-            function (err, data) {
-            if (err){
-              res.send(err);
-            }else{
-              res.json(data);
+        		// render the page and pass in any flash data if it exists
+        		res.sendfile('./client/login.html', { message: req.flash('loginMessage') });
+        	});
+        
+        	// process the login form
+        	app.post('/login', passport.authenticate('local-login', {
+        		successRedirect : '/home', // redirect to the secure profile section
+        		failureRedirect : '/login', // redirect back to the signup page if there is an error
+        		failureFlash : true // allow flash messages
+        	}));
+          /*
+          app.post('/login', function(req, res, next) {
+          passport.authenticate('local-login', function(err, user, info) {
+            if (err) {
+              return next(err); // will generate a 500 error
             }
-            
+            // Generate a JSON response reflecting authentication status
+            if (! user) {
+              return res.send(401,{ success : false, message : 'authentication failed' });
+            }
+            req.login(user, function(err){
+              if(err){
+                return next(err);
+              }
+              res.redirect('/home');
+              return res.send({ success : true, message : 'authentication succeeded' });
+              
+            });
+            })(req, res, next);
+          });*/
+        	// =====================================
+        	// SIGNUP ==============================
+        	// =====================================
+        	// show the signup form
+        	app.get('/signup', function(req, res) {
+        
+        		// render the page and pass in any flash data if it exists
+        		res.sendfile('./client/register.html', { message: req.flash('signupMessage') });
+        	});
+        
+        	// process the signup form
+        	app.post('/signup', passport.authenticate('local-signup', {
+        		successRedirect : '/profile', // redirect to the secure profile section
+        		failureRedirect : '/signup', // redirect back to the signup page if there is an error
+        		failureFlash : true // allow flash messages
+        	}));
+        
+        	// =====================================
+        	// PROFILE SECTION =========================
+        	// =====================================
+        	// we will want this protected so you have to be logged in to visit
+        	// we will use route middleware to verify this (the isLoggedIn function)
+        	app.get('/profile', isLoggedIn, function(req, res) {
+        		res.sendfile('./client/profile.html', {
+        			user : req.user // get the user out of session and pass to template
+        		});
+        	});
+        	// =====================================
+        	// MAIN ADMIN SECTION =========================
+        	// =====================================
+        	// we will want this protected so you have to be logged in to visit
+        	// we will use route middleware to verify this (the isLoggedIn function)
+        	app.get('/home', isLoggedIn, function(req, res) {
+        		res.sendfile('./client/my-account.html', {
+        			user : req.user // get the user out of session and pass to template
+        		});
+        	});
+        	// =====================================
+          // Contact PAGE (with login links) ========
+          // =====================================
+          app.get('/contact', function(req, res) {
+              res.sendfile('./client/contact.html'); // load the index.html file
           });
-        });
+          // =====================================
+          // Partner PAGE (with login links) ========
+          // =====================================
+          app.get('/partner', function(req, res) {
+              res.sendfile('./client/taxi.html'); // load the index.html file
+          });
+          // =====================================
+          // Agent PAGE (with login links) ========
+          // =====================================
+          app.get('/agent', function(req, res) {
+              res.sendfile('./client/private-driver.html'); // load the index.html file
+          });
+          // =====================================
+          // FACEBOOK ROUTES =====================
+          // =====================================
+          // route for facebook authentication and login
+          app.get('/auth/facebook', passport.authenticate('facebook', { authType: 'rerequest', scope : 'email' }));
+      
+          // handle the callback after facebook has authenticated the user
+          app.get('/auth/facebook/callback',
+              passport.authenticate('facebook', {
+                  successRedirect : '/home',
+                  failureRedirect : '/login'
+              }));
+              
+          // =====================================
+          // GOOGLE ROUTES =======================
+          // =====================================
+          // send to google to do the authentication
+          // profile gets us their basic information including their name
+          // email gets their emails
+          app.get('/auth/google', passport.authenticate('google', { scope : ['profile', 'email'] }));
+      
+          // the callback after google has authenticated the user
+          app.get('/auth/google/callback',
+                  passport.authenticate('google', {
+                          successRedirect : '/home',
+                          failureRedirect : '/login'
+                  }));
+      
+          //};
+
+      
+          // route for logging out
+          app.get('/logout', function(req, res) {
+              req.logout();
+              res.redirect('/login');
+          });
+          
+          // route middleware to make sure
+          function isLoggedIn(req, res, next) {
+          
+          	// if user is authenticated in the session, carry on
+          	if (req.isAuthenticated())
+          		return next();
+          
+          	// if they aren't redirect them to the home page
+          	res.redirect('/login');
+          }
+          
+          
+          //=========================================================================================================
+        
+        
+        /* GET /Agent listing. */
         
         /* POST /todos */
         app.post('/api/kpi', function(req, res, next) {
-          Kpi.create(req.body, function (err, data) {
+          User.create(req.body, function (err, data) {
             if (err) return next(err);
             res.json(data);
           });
@@ -299,7 +236,7 @@ module.exports = function(app) {
         
         /* GET /todos/id */
         app.get('/api/kpi/:id', function(req, res, next) {
-          Kpi.findById(req.params.id, function (err, data) {
+          User.findById(req.params.id, function (err, data) {
             if (err) return next(err);
             res.json(data);
           });
@@ -307,7 +244,7 @@ module.exports = function(app) {
         
         /* PUT /todos/:id */
         app.put('/api/kpi/:id', function(req, res, next) {
-          Kpi.findByIdAndUpdate(req.params.id, req.body, function (err, data) {
+          User.findByIdAndUpdate(req.params.id, req.body, function (err, data) {
             if (err) return next(err);
             res.json(data);
           });
@@ -316,150 +253,19 @@ module.exports = function(app) {
         // route to handle delete goes here (app.delete)
         /* DELETE /todos/:id */
         app.delete('/api/kpi/:id', function(req, res, next) {
-          Kpi.findByIdAndRemove(req.params.id, req.body, function (err, data) {
+          User.findByIdAndRemove(req.params.id, req.body, function (err, data) {
             if (err) return next(err);
             res.json(data);
           });
         });
         
-        //==============================Metrics KPIs================================
-        /* GET /todos listing. */
-        app.get('/api/metric', function(req, res) {
-          Metric.find(function (err, data) {
-            if (err){
-              res.send(err);
-            }else{
-              res.json(data);
-            }
-            
-          });
-        });
-        
-        app.get('/api/metric/join_kpi', function(req, res) {
-          Metric.aggregate([
-                         
-                         {
-                              $lookup:
-                                {
-                                  from: "kpis",
-                                  localField: "kpi_id",
-                                  foreignField: "_id",
-                                  as: "kpi_metric"
-                                }
-                         },{ $unwind:"$kpi_metric" }
-                         ]).
-            exec(
-            function (err, data) {
-            if (err){
-              res.send(err);
-            }else{
-              res.json(data);
-            }
-            
-          });
-        });
-        
-        /* POST /todos */
-        app.post('/api/metric', function(req, res, next) {
-          Metric.create(req.body, function (err, data) {
-            if (err) return next(err);
-            res.json(data);
-          });
-        });
-        
-        /* GET /todos/id */
-        app.get('/api/metric/get_by_kpi/:id', function(req, res, next) {
-          Metric.find({kpi_id : req.params.id}).exec(function (err, data) {
-            if (err) return next(err);
-            res.json(data);
-          });
-        });
-        
-        /* GET all metrics for a particular kpi */
-        app.get('/api/metric/:id', function(req, res, next) {
-          Metric.findById(req.params.id, function (err, data) {
-            if (err) return next(err);
-            res.json(data);
-          });
-        });
-        
-        /* PUT /todos/:id */
-        app.put('/api/metric/:id', function(req, res, next) {
-          Metric.findByIdAndUpdate(req.params.id, req.body, function (err, data) {
-            if (err) return next(err);
-            res.json(data);
-          });
-        });
-        
-        // route to handle delete goes here (app.delete)
-        /* DELETE /todos/:id */
-        app.delete('/api/metric/:id', function(req, res, next) {
-          Metric.findByIdAndRemove(req.params.id, req.body, function (err, data) {
-            if (err) return next(err);
-            res.json(data);
-          });
-        });
-        
-        //==============================Company KPIs================================
-        /* GET /todos listing. */
-        app.get('/api/company', function(req, res) {
-          Company.find(function (err, data) {
-            if (err){
-              res.send(err);
-            }else{
-              res.json(data);
-            }
-            
-          });
-        });
-        
-        /* POST /todos */
-        app.post('/api/company', function(req, res, next) {
-          Company.create(req.body, function (err, data) {
-            if (err) return next(err);
-            res.json(data);
-          });
-        });
-        
-        /* GET /todos/id */
-        app.get('/api/company/:id', function(req, res, next) {
-          Company.findById(req.params.id, function (err, data) {
-            if (err) return next(err);
-            res.json(data);
-          });
-        });
-        
-        /* PUT /todos/:id */
-        app.put('/api/company/:id', function(req, res, next) {
-          Company.findByIdAndUpdate(req.params.id, req.body, function (err, data) {
-            if (err) return next(err);
-            res.json(data);
-          });
-        });
-        
-        // route to handle delete goes here (app.delete)
-        /* DELETE /todos/:id */
-        app.delete('/api/company/:id', function(req, res, next) {
-          Company.findByIdAndRemove(req.params.id, req.body, function (err, data) {
-            if (err) return next(err);
-            res.json(data);
-          });
-        });
-        //=========================Subscriber endpoints=============================
-        app.post('/api/subscriber', function(req, res,next) {
-          //var newSubscriber = req.body;
-
-          Subscriber.create(req.body, function (err, data) {
-            if (err) return next(err);
-            res.json(data);
-          });
-          
-        });
+       
+       
 
         // frontend routes =========================================================
         // route to handle all angular requests
-        app.get('*', function(req, res) {
+      /*  app.get('*', function(req, res) {
             res.sendfile('./client/index.html'); // load our public/index.html file
         });
-
+       */ 
     };

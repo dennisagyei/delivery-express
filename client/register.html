@@ -3,7 +3,7 @@
     <head>
 
         <!-- /.website title -->
-        <title>VTC Theme | Register Page</title>
+        <title>potomanto | Register </title>
         <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 
         <meta charset="UTF-8" />
@@ -16,6 +16,7 @@
         <link href="css/owl.theme.css" rel="stylesheet">
         <link href="css/owl.carousel.css" rel="stylesheet">
         <link href="css/bootstrap-datetimepicker.min.css" rel="stylesheet">
+        <link href="css/bootstrap-social.css" rel="stylesheet">
 
         <!-- Colors -->
         <!-- <link href="css/css-index-blue.css" rel="stylesheet" media="screen"> -->
@@ -26,8 +27,11 @@
         <link href="css/css-index-blue.css" rel="stylesheet" media="screen"> 
 
         <!-- Google Fonts -->
-        <link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Lato:100,300,400,700,900,100italic,300italic,400italic,700italic,900italic" />
-
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato:100,300,400,700,900,100italic,300italic,400italic,700italic,900italic" />
+        
+        <script src="js/angular.min.js"></script> 
+        <!-- <script type="text/javascript" src="js/angular-route.min.js"></script> -->
+        <!-- <script type="text/javascript" src="js/angular-resource.min.js"></script> -->
     </head>
 
     <body data-spy="scroll" data-target="#navbar-scroll">
@@ -37,7 +41,7 @@
         <div id="top"></div>
 
         <!-- /.parallax full screen background image -->
-        <div class="fullscreen landing parallax blog-page" style="background-image:url('images/bg-baner.jpg');" data-img-width="2000" data-img-height="1333" data-diff="100">
+        <div class="fullscreen landing parallax blog-page" style="background-image:url('images/bg-baner-ariportcity.jpg');" data-img-width="2000" data-img-height="1333" data-diff="100">
 
             <div class="overlay">
                 <div class="container">
@@ -45,12 +49,13 @@
 
                         <!-- /.logo -->
                         <div class="logo wow fadeInDown" style="margin-top: 50px"> 
-                            <a href="index.html"><img src="images/logo.png" alt="logo"></a>
+                            <span class="wow fadeInLeft" style="display:inline-block"><a href="/" class="btn-logo"><i class="fa fa-delicious"></i> potomanto</a></span>
+                        </a>
                         </div>
 
                         <!-- /.main title -->
                         <h2 class="wow fadeInUp" style="margin-bottom: 50px">
-                            Register page
+                            Sign Up
                         </h2>
 
                     </div>
@@ -70,95 +75,75 @@
                                 <span class="icon-bar"></span>
                                 <span class="icon-bar"></span>
                             </button>
-                            <a class="navbar-brand site-name" href="#top"><img src="images/logo2.png" alt="logo"></a>
+                            <a class="navbar-brand site-name" href="#top">
+                              <!-- <img src="images/logo2.png" alt="logo"></a>-->
+                             <span class="wow fadeInLeft" style="display:inline-block"><a href="/" class="btn-logo-w"><i class="fa fa-delicious"></i> potomanto</a></span>
                         </div>
 
                         <div id="navbar-scroll" class="collapse navbar-collapse navbar-backyard navbar-right">
                             <ul class="nav navbar-nav">
-                                <li><a href="private-driver.html">Private driver</a></li>
-                                <li><a href="taxi.html">Booking taxi</a></li>
-                                <li><a href="services.html">Services</a></li>
-                                <li class="ymm-sw">
-                                     <a class="dropdown-toggle" data-toggle="dropdown" data-hover="dropdown" data-delay="200" href="#">Blog page<b class="caret"></b> </a>
-                                     <ul class="dropdown-menu navbar-nav"> 
-                                            <li><a href="blog.html">Blog</a></li>
-                                            <li><a href="single.html">Single page</a></li>
-                                            <li><a href="single-left-sidebar.html">Single left sidebar</a></li>
-                                            <li><a href="single-right-sidebar.html">Single right sidebar</a></li> 
-                                     </ul>
-                                </li>
-                                
-                                <li class="ymm-sw">
-                                     <a class="dropdown-toggle" data-toggle="dropdown" data-hover="dropdown" data-delay="200" href="#pages">Pages <b class="caret"></b> </a>
-                                     <ul class="dropdown-menu navbar-nav">
-                                            <li><a href="cars-list.html">Cars list page</a></li> 
-                                            <li><a href="booking-step-two.html">Booking page</a></li>  
-                                            <li><a href="features.html">Features page</a></li>
-                                            <li><a href="faq.html">FAQ page</a></li>
-                                            <li><a href="404.html">404 page</a></li>
-                                            <li><a href="login.html">Login page</a></li>
-                                            <li><a href="register.html">Register page</a></li>
-                                            <li><a href="about.html">About page</a></li>
-                                     </ul>
-                                </li>  
-                                <li><a href="my-account.html">My account</a></li>
-                                <li><a href="contact.html">Contact</a></li>
+                                <li><a href="/">Home</a></li>
+                                <li><a href="/agent">Be an Agent</a></li>
+                                <li><a href="/partner">Partner Us</a></li>
+                                <li><a href="/contact">Contact Us</a></li>
+                                <li><a style="border: 2px solid #3eb0f7; padding: 7px; margin: 5px 5px;color: #3eb0f7" href="/login">Sign In</a></li>
                             </ul>
                         </div>
                     </div>
                 </nav>
             </div>
 
-        <!-- /.Cars section -->
-        <div id="sign-in">
+
+        <!-- /.Sign section -->
+        <div id="sign-in" ng-app="app">
             <div class="container">
                 <div class="col-sm-6">
                     <div class="text-center">
-                        <h2 class="wow fadeInLeft">Sign In</h2>
+                        <h2 class="wow fadeInLeft">Sign Up</h2>
                         <div class="title-line wow fadeInRight"></div>
                     </div>
                     <div class="row sign-in">
 
-                        <form action="my-account.html" method="post">
-                            <div class="form-group">
-                                <label for="email">Email</label>
-                                <input class="form-control" id="email" type="text">
+                        <form id="contact-form" action="/signup" method="post">
+                           <div class="form-group">
+                                <label for="name-login">Name</label>
+                                <input class="form-control" id="name-login" type="text" name="name">
                             </div>
                             <div class="form-group">
-                                <label for="password">Password</label>
-                                <input class="form-control" id="password" type="password">
+                                <label for="email-login">Email</label>
+                                <input class="form-control" id="email-login" type="email" name="email">
+                            </div>
+                            <div class="form-group">
+                                <label for="password-login">Password</label>
+                                <input class="form-control" id="password-login" type="password" name="password">
                             </div>
                             <div class="text-center">
-                                <button type="submit" class="btn btn-primary"><i class="fa fa-sign-in"></i> Log in</button>
+                                <button type="submit" class="btn btn-primary"><i class="fa fa-user-md"></i> Create New Account</button>
                             </div>
                         </form>
+                        
+                        <hr>
+                    
+                        <p class="text-center">Already have an account? <a href="/login">Log In</a></p>
+
 
                     </div>
                 </div>
                 <div class="col-sm-6">
                     <div class="text-center">
-                        <h2 class="wow fadeInLeft">Register</h2>
+                        <h2 class="wow fadeInLeft">OR</h2>
                         <div class="title-line wow fadeInRight"></div>
                     </div>
                     <div class="row register">
 
-                        <form action="my-account.html" method="post">
-                            <div class="form-group">
-                                <label for="name-login">Name</label>
-                                <input class="form-control" id="name-login" type="text">
-                            </div>
-                            <div class="form-group">
-                                <label for="email-login">Email</label>
-                                <input class="form-control" id="email-login" type="text">
-                            </div>
-                            <div class="form-group">
-                                <label for="password-login">Password</label>
-                                <input class="form-control" id="password-login" type="password">
-                            </div>
                             <div class="text-center">
-                                <button type="submit" class="btn btn-primary"><i class="fa fa-user-md"></i> Register</button>
+                                <a href="/auth/facebook" class="btn btn-primary btn-social btn-facebook"><i class="fa fa-facebook"></i> Sign up with Facebook</a>
                             </div>
-                        </form>
+                        
+                            <div class="text-center">
+                                <a href="/auth/google" class="btn btn-primary btn-social btn-google"><i class="fa fa-google"></i> Sign up with Google</a>
+                            </div>
+
                     </div>
                 </div>
             </div>
@@ -166,65 +151,24 @@
 
 
         
+        
         <!-- /.footer -->
         <footer id="footer">
             <div class="footer-top">
                 <div class="container">
                     <div class="">
                         <div class="col-md-4 col-sm-6">
-                            <h4>Where to find us</h4>
-                            <p><strong>kimaroTec.</strong>
-                                <br>13/25 New Avenue shibuia ayko
-                                <br>Kyoto city <br >45Y  
-                                <strong>Japon</strong>
-                            </p>
-                            <a href="contact.html">Go to contact page</a>
-                            <hr class="hidden-md hidden-lg">
+                           
                         </div> 
 
                         <div class="col-md-4 col-sm-6">
-                            <h4>Last news </h4>
-                            <ul class="footer-news">
-                                <li>
-                                    <a href="single.html"><img src="images/cirecl-car.png" alt=""> 
-                                        <em>Mercidice class S 201</em>
-                                        <span class="f-readMore">More .. </span>
-                                    </a> 
-                                </li>                                
-                                <li>
-                                    <a href="single.html"><img src="images/cirecl-car.png" alt=""> 
-                                        <em>Mercidice class S 201</em>
-                                        <span class="f-readMore">More .. </span>
-                                    </a> 
-                                </li>                                
-                                <li>
-                                    <a href="single.html"><img src="images/cirecl-car.png" alt=""> 
-                                        <em>Mercidice class S 201</em>
-                                        <span class="f-readMore">More .. </span>
-                                    </a> 
-                                </li>
-                         
-                            </ul>
-                            <hr class="hidden-md hidden-lg">
+                            
                         </div>
                         <!-- /.col-md-4 -->
                         
                         <div class="col-md-4 col-sm-6">
-                            <h4>Get the news</h4>
-                            <div class="newsletter-box">
-                                <div class="newsletter">  
-                                    <div class="newsletter-content"> 
-                                        <p>Join our newsletter of Lorem Ipsum available, but the majority have suffered alteration .</p>
-                                    </div> 
-                                    <div class="newsletter-form">
-                                        <form>
-                                            <input type="text" placeholder="Enter your email...." required=""/>
-                                            <input type="submit" value=" ">
-                                        </form>
-                                    </div>
-                                    <div class="clear"> </div>
-                                </div>
-                            </div>
+                            
+                            
                         </div>
                         <!-- /.col-md-4 -->
 
@@ -247,7 +191,7 @@
                                 </ul>
                             </div>	
 
-                            <div class="text-center wow fadeInUp" style="font-size: 14px;">Copyright VTC Theme 2016 - Template by <a href="http://www.Kimarotec.com">kimaroTheme</a></div>
+                             <div class="text-center wow fadeInUp" style="font-size: 14px;">© 2017- Powered by Zarra Technologies   </div>
                             <a href="#" class="scrollToTop"><i class="pe-7s-up-arrow pe-va"></i></a>
                         </div>	
                     </div>
@@ -258,6 +202,7 @@
 
 
         <!-- /.javascript files -->
+        <script src="js/app.js"></script>
         <script src="js/jquery.js"></script>
         <script src="js/bootstrap.min.js"></script>
         <script src="js/bootstrap-datetimepicker.min.js"></script>
@@ -265,8 +210,9 @@
         <script src="js/jquery.sticky.js"></script>
         <script src="js/wow.min.js"></script>
         <script src="js/owl.carousel.min.js"></script>
-            <script src="js/jquery.validate.min.js"></script> 
-
+        <script src="js/jquery.validate.min.js"></script> 
+        
+        
 
 
         <script>

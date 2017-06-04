@@ -46,3 +46,14 @@ http://www.deliv.co/
 ############################NAMES###############################################################
 ParcelsExpress
 ParcelHub
+###############################Google Auth Client Setup########################################
+Go to the credentials section in the Google Cloud Platform Console.
+Click OAuth consent screen. For the the product name, enter Node.js Bookshelf App. Fill in any relevant optional fields. Click Save.
+Click Create credentials > OAuth client ID.
+Under Application type, select Web Application.
+Under Name, enter Node.js Bookshelf Client.
+Under Authorized redirect URIs enter the following URLs, one at a time. Replace [YOUR_PROJECT_ID] with your project ID:
+
+http://localhost:8080/auth/google/callback
+http://[YOUR_PROJECT_ID].appspot.com/auth/google/callback
+https://[YOUR_PROJECT_ID].appspot.com/auth/google/callback

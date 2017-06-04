@@ -281,8 +281,8 @@ a:hover {
 }
 .landing-text p {
     text-align: left;
-font-size: 17px !important;
-padding: 6px;
+    font-size: 17px !important;
+    padding: 6px;
 }
 .head-btn {
     margin-bottom: 150px;
@@ -360,10 +360,10 @@ padding: 6px;
     font-weight: 300;
 }
 #policy ,#myaccount{
-    padding: 100px 0 70px;
+    padding: 50px 0 70px;
 }
 #intro ,#myaccount,#services ,#team{
-    padding: 100px 0 70px;
+    padding: 50px 0 70px;
 }
 #intro h2 {
     font-size: 40px;
@@ -574,6 +574,7 @@ margin-top: 0px;
     background: #f6f6f6;
     
 }
+
 #client img {
     max-height: 50px;
     margin: 0 20px;
@@ -1052,7 +1053,7 @@ datetimepicker-widget td, .bootstrap-datetimepicker-widget th {
     width:100%;
 } 
 #map_canvas {
-    height: 300px;
+    height: 450px;
 }
 .close_map{
     cursor: pointer;
