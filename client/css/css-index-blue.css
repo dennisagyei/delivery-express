@@ -1052,7 +1052,7 @@ datetimepicker-widget td, .bootstrap-datetimepicker-widget th {
 .modal{
     width:100%;
 } 
-#map_canvas {
+.map_div {
     height: 450px;
 }
 .close_map{

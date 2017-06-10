@@ -15,13 +15,6 @@
         <link href="css/owl.theme.css" rel="stylesheet">
         <link href="css/owl.carousel.css" rel="stylesheet">
         <link href="css/bootstrap-datetimepicker.min.css" rel="stylesheet">
-
-        <!-- Colors -->
-        <!-- <link href="css/css-index-blue.css" rel="stylesheet" media="screen"> -->
-        <!-- <link href="css/css-index-green.css" rel="stylesheet" media="screen"> -->
-        <!-- <link href="css/css-index-purple.css" rel="stylesheet" media="screen"> -->
-        <!-- <link href="css/css-index-red.css" rel="stylesheet" media="screen"> -->
-        <!-- <link href="css/css-index-orange.css" rel="stylesheet" media="screen"> -->
         <link href="css/css-index-blue.css" rel="stylesheet" media="screen"> 
 
         <!-- Google Fonts -->
@@ -100,25 +93,34 @@
             
                  <div class="row">
                         <div class="col-md-3">
-                            <div id="booking_control" class="booking_control">
+                            <div class="home_booking_control">
+                                <form>
+                                   
+                                
                                         <div class="form-group">
-                                            <input class="form-control input-lg" name="picking_up" id="picking_up" type="text" placeholder="Picking up" required>
-                                            <a class="btn-geolocation btn-geolocation1" onclick="getLocation()" href="#"><i class="pe-7s-map-marker"></i></a>
+                                            <input class="form-control" name="picking_up" id="picking_up" type="text" placeholder="Picking up" required>
                                         </div> 
                                         <div id="date_time" class="form-group">
-                                            <input class="form-control input-lg" name="pick_up_date" id="pick_up_date" type="text" placeholder="Pick up date" required>
-                                            <a class="add-on btn-geolocation btn-calendar" href="#"><i class="pe-7s-date"></i></a>
+                                            <input class="form-control" name="pick_up_date" id="pick_up_date" type="text" placeholder="Pick up date" required>
                                         </div>
 
                                         <div class="form-group">
-                                            <input class="form-control input-lg" name="dropping_off" id="dropping_off" type="text" placeholder="Dropping off" required>
-                                            <a class="btn-geolocation btn-geolocation2" onclick="getLocationDestination()" href="#"><i class="pe-7s-map-marker"></i></a>
+                                            <input class="form-control" name="dropping_off" id="dropping_off" type="text" placeholder="Dropping off" required>
                                         </div>
 
                                         <div class="form-group last">
                                             <input type="button" id="find_direction" class="btn btn-primary" value="REQUEST A DELIVERY">
-                                            <i class="load_icon pe-7s-refresh pe-spin directionLoad display_none"> </i>
                                         </div>
+                                        
+                                        <div id="infoPanel">
+                                            <b>Marker status:</b>
+                                            <div id="markerStatus"><i>Click and drag the marker.</i></div>
+                                            <b>Current position:</b>
+                                            <div id="info"></div>
+                                            <b>Closest matching address:</b>
+                                            <div id="address"></div>
+                                          </div>
+                            </form>
                             </div>
                         </div>
                         <div class="col-md-9">
@@ -141,15 +143,270 @@
         <script src="js/jquery.sticky.js"></script>
         <script src="js/wow.min.js"></script>
         <script src="js/owl.carousel.min.js"></script>
-        <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?key=AIzaSyC9H_SZmYKPM0TXnnnHxcRPMJyYjf00rvs&libraries=places"></script> 
         <script src="js/bootstrap-hover-dropdown.js"></script>
-        <script src="js/google.js"></script>
         <script src="js/booking.js"></script>
         <script src="js/jquery.validate.min.js"></script> 
         <script>
             new WOW().init();
+            
 
+              var map,infoWindow;
+              var geocoder;
+              var markerA,markerB;
+              var inputA, inputB;
+              var autocompleteA,autocompleteB;
+              var directionsService,directionsDisplay;
+             
+              
+              function initMap() {
+                  
+                var mapOptions = {
+                    center: {lat: 5.5885497, lng: -0.185424},
+                    zoom: 5,
+                    zoomControl: true,
+                    mapTypeControl: false,
+                    styles: 'silver' //or 'night'
+                };
+                
+                map = new google.maps.Map(document.getElementById('map_canvas'), mapOptions);
+                
+                directionsService = new google.maps.DirectionsService();
+                directionsDisplay = new google.maps.DirectionsRenderer({
+                  draggable: true,
+                  map: map
+                });
+        
+                directionsDisplay.addListener('directions_changed', function() {
+                  computeTotalDistance(directionsDisplay.getDirections());
+                });
+                //Define Markers
+                markerA = new google.maps.Marker({
+                    map: map,
+                    label : 'A',
+                    draggable: true,
+                    title: 'Drag to set Pickup Location'
+                  });
+                
+                markerB = new google.maps.Marker({
+                    map: map,
+                    label : 'B',
+                    draggable: true,
+                    title: 'Drag to set drop-off Location'
+                  });
+                
+                inputA= document.getElementById('picking_up');
+                inputB= document.getElementById('dropping_off');
+                
+                var autocompleteA = new google.maps.places.Autocomplete(inputA);
+                    autocompleteA.bindTo('bounds', map);
 
+                var autocompleteB = new google.maps.places.Autocomplete(inputB);
+                    autocompleteB.bindTo('bounds', map);
+                
+                google.maps.event.addListener(autocompleteA, 'place_changed', function() {
+                    
+                    var place = autocompleteA.getPlace();
+                    if (!place.geometry) {
+                      return;
+                    }
+                
+                    // Set the position of the marker using the place ID and location.
+                    markerA.setPlace(/** @type {!google.maps.Place} */ ({
+                      placeId: place.place_id,
+                      location: place.geometry.location
+                    }));
+                    markerA.setVisible(true);
+                
+                });
+                
+                google.maps.event.addListener(autocompleteB, 'place_changed', function() {
+                    
+                    var place = autocompleteB.getPlace();
+                    if (!place.geometry) {
+                      return;
+                    }
+                
+                    // Set the position of the marker using the place ID and location.
+                    markerB.setPlace(/** @type {!google.maps.Place} */ ({
+                      placeId: place.place_id,
+                      location: place.geometry.location
+                    }));
+                    markerB.setVisible(true);
+                    
+                    map.setZoom(11);
+                    
+                    displayRoute(inputA.value,inputB.value);
+                });
+
+                infoWindow = new google.maps.InfoWindow;
+                
+                // auto set location geolocation.
+                if (navigator.geolocation) {
+                  navigator.geolocation.getCurrentPosition(function(position) {
+                    var pos = {
+                      lat: position.coords.latitude,
+                      lng: position.coords.longitude
+                    };
+        
+                    map.setCenter(pos);
+                  }, function() {
+                    handleLocationError(true, infoWindow, map.getCenter());
+                  });
+                } else {
+                  // Browser doesn't support Geolocation
+                  handleLocationError(false, infoWindow, map.getCenter());
+                }
+                
+                
+                   
+                 //codeAddress();
+              }
+              
+              function apply_autocomplete(input) {
+
+                    var options = {
+                        types: ['geocode']
+                    };
+                    var autocomplete = new google.maps.places.Autocomplete(input,options);
+                    autocomplete.bindTo('bounds', map);
+              }
+              
+              function handleLocationError(browserHasGeolocation, infoWindow, pos) {
+                infoWindow.setPosition(pos);
+                infoWindow.setContent(browserHasGeolocation ?
+                                      'Error: The Geolocation service failed.' :
+                                      'Error: Your browser doesn\'t support geolocation.');
+                infoWindow.open(map);
+              }
+              
+              
+              function displayRoute(origin_add,destination_add)
+              {
+                  // Set destination, origin and travel mode.
+                    var request = {
+                      destination: destination_add,
+                      origin: origin_add,
+                      optimizeWaypoints: true,
+                      travelMode: 'DRIVING'
+                    };
+            
+                    // Pass the directions request to the directions service.
+                    directionsService.route(request, function(response, status) {
+                      if (status == 'OK') {
+                        // Display the route on the map.
+                        //directionsDisplay.setDirections(response);
+                        directionsDisplay.setMap(map);
+                        directionsDisplay.setDirections(response);
+                        
+                        deleteMarkers();
+                      }else {
+                        console.log('Directions request failed due to ' + status);
+                      } 
+                    });
+              }
+              
+              function computeTotalDistance(result) {
+                var total = 0;
+                var myroute = result.routes[0];
+                for (var i = 0; i < myroute.legs.length; i++) {
+                  total += myroute.legs[i].distance.value;
+                }
+                total = total / 1000;
+                console.log('computeTotalDistance:'+ total + ' km');
+              }
+              
+              function deleteMarkers() {
+                markerA.setMap(null);
+                markerB.setMap(null);
+                //markers = [];
+              }
+              function codeAddress() 
+              {
+                geocoder = new google.maps.Geocoder();
+              
+                var address = 'Accra';
+                
+                geocoder.geocode( { 'address': address}, function(results, status) {
+                if (status == google.maps.GeocoderStatus.OK) {
+                  map = new google.maps.Map(document.getElementById('map_canvas'), {
+                        zoom: 16,
+                        streetViewControl: false,
+                        mapTypeControlOptions: {
+                        style: google.maps.MapTypeControlStyle.HORIZONTAL_BAR,
+                        mapTypeIds:[google.maps.MapTypeId.HYBRID, google.maps.MapTypeId.ROADMAP] 
+                },
+                center: results[0].geometry.location,
+                mapTypeId: google.maps.MapTypeId.ROADMAP
+                });
+                
+                map.setCenter(results[0].geometry.location);
+                var markerA = new google.maps.Marker({
+                map: map,
+                label : 'A',
+                position: results[0].geometry.location,
+                      draggable: true,
+                      title: 'Drag to set Pickup Location'
+                });
+                
+                updateMarkerPosition(results[0].geometry.location);
+                  geocodePosition(results[0].geometry.location);
+                    
+                  // Add dragging event listeners.
+                google.maps.event.addListener(markerA, 'dragstart', function() {
+                updateMarkerAddress('Dragging...');
+              });
+                  
+              google.maps.event.addListener(markerA, 'drag', function() {
+                updateMarkerStatus('Dragging...');
+                updateMarkerPosition(markerA.getPosition());
+              });
+              
+              google.maps.event.addListener(markerA, 'dragend', function() {
+                updateMarkerStatus('Drag ended');
+                geocodePosition(markerA.getPosition());
+                  map.panTo(markerA.getPosition()); 
+              });
+              
+              google.maps.event.addListener(map, 'click', function(e) {
+                updateMarkerPosition(e.latLng);
+                geocodePosition(markerA.getPosition());
+                markerA.setPosition(e.latLng);
+              map.panTo(markerA.getPosition()); 
+              }); 
+              
+                } else {
+                  alert('Geocode was not successful for the following reason: ' + status);
+                }
+              });
+            }
+            
+            function geocodePosition(pos) {
+              geocoder.geocode({
+                latLng: pos
+              }, function(responses) {
+                if (responses && responses.length > 0) {
+                  updateMarkerAddress(responses[0].formatted_address);
+                } else {
+                  updateMarkerAddress('Cannot determine address at this location.');
+                }
+              });
+            }
+            
+            function updateMarkerStatus(str) {
+              document.getElementById('markerStatus').innerHTML = str;
+            }
+            
+            function updateMarkerPosition(latLng) {
+              document.getElementById('info').innerHTML = [
+                latLng.lat(),
+                latLng.lng()
+              ].join(', ');
+            }
+            
+            function updateMarkerAddress(str) {
+              document.getElementById('picking_up').value = str;
+            }
         </script>
+        <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyC9H_SZmYKPM0TXnnnHxcRPMJyYjf00rvs&libraries=places&callback=initMap"     async defer></script>
     </body>
 </html>
