@@ -94,7 +94,7 @@ if(!$("html").hasClass("touch")){
     
 /* smooth scroll */
     $(function() {
-        $('a[href*=#]:not([href=#])').click(function() {
+        $('a[href*=\\#]:not([href=\\#])').click(function() {
             if (location.pathname.replace(/^\//, '') == this.pathname.replace(/^\//, '') || location.hostname == this.hostname) {
 
                 var target = $(this.hash);
@@ -183,10 +183,13 @@ $(document).ready(function() {
 
 jQuery(document).ready(function($){
     // site preloader -- also uncomment the div in the header and the css style for #preloader
-    $(window).load(function(){
+    $(window).on('load', function(){
+            $('#preloader').fadeOut('slow',function(){$(this).remove();});
+    });
+/*    $(window).load(function(){
             $('#preloader').fadeOut('slow',function(){$(this).remove();});
     }); 
-    
+ */   
     //booking buttons function  
     $(".btn-nxt-booking").on('click',function(){        
         $('.bkg-2').addClass('done');      

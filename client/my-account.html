@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html>
-    <head>
+    <html lang="en" ng-app="app" ng-controller="MainCtrl">
 
         <!-- /.website title -->
         <title>potomanto | Home</title>
@@ -8,7 +8,8 @@
 
         <meta charset="UTF-8" />
         <!-- CSS Files -->
-        <link href="css/bootstrap.min.css" rel="stylesheet" media="screen">
+        <!--<link href="css/bootstrap.min.css" rel="stylesheet" media="screen">-->
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
         <link href="css/font-awesome.min.css" rel="stylesheet">
         <link href="fonts/icon-7-stroke/css/pe-icon-7-stroke.css" rel="stylesheet">
         <link href="css/animate.css" rel="stylesheet" media="screen">
@@ -16,6 +17,11 @@
         <link href="css/owl.carousel.css" rel="stylesheet">
         <link href="css/bootstrap-datetimepicker.min.css" rel="stylesheet">
         <link href="css/css-index-blue.css" rel="stylesheet" media="screen"> 
+        
+        <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.6/angular.min.js"></script>
+        <script type="text/javascript" src="js/angular-resource.min.js"></script>
+        
+
 
         <!-- Google Fonts -->
         <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato:100,300,400,700,900,100italic,300italic,400italic,700italic,900italic" />
@@ -42,7 +48,7 @@
 
                         <!-- /.main title -->
                         <h2 class="wow fadeInUp" style="margin-bottom: 50px">
-                            Welcome :{{ Dennis }}
+                            Welcome : {{ login_user.facebook.name }}
                         </h2>
 
                     </div>
@@ -74,8 +80,8 @@
                                 <li class="ymm-sw">
                                      <a class="dropdown-toggle" data-toggle="dropdown" data-hover="dropdown" data-delay="200" href="/home">Menu <b class="caret"></b> </a>
                                      <ul class="dropdown-menu navbar-nav">
-                                        <li><a href="#">My Bookings</a></li>
-                                        <li><a href="#">Payments</a></li>
+                                        <li><a href="/bookings">My Bookings</a></li>
+                                        <li><a href="/payments">Payments</a></li>
                                         <li><a href="/profile">Profile</a></li> 
                                         
                                         <li><a href="/logout">Sign out</a></li> 
@@ -90,58 +96,116 @@
             </div>
 
          <div id="map-section" class="container-fluid">
-            
-                 <div class="row">
+            <div class="row">
+               <div class="col-md-3" style="padding-top: 5px;">
+                    <div class="panel panel-info" style="border: 1px solid #0aabe1;">
+                      <div class="panel-heading"  style="background: #0aabe1; font-weight: bold; color: white">Routes</div>
+                      <div class="panel-body">
+                        <div class="form-group">
+                          <input class="form-control" name="picking_up" id="picking_up" type="text" placeholder="Enter Pick-up location" required>
+                        </div> 
+                              
+                        <div class="form-group">
+                          <input class="form-control" name="dropping_off" id="dropping_off" type="text" placeholder="Enter drop-off location" required>
+                        </div>
+                      </div>
+                    </div>
                     
-                        <div class="col-md-3" style="padding-top: 20px;">
-                            <form> 
-                            
-                            <div class="form-group">
-                                <input class="form-control" name="picking_up" id="picking_up" type="text" placeholder="Enter Pick-up location" required>
-                            </div> 
-                            
-                            <div class="form-group">
-                                <input class="form-control" name="dropping_off" id="dropping_off" type="text" placeholder="Enter drop-off location" required>
-                            </div>
-                            
-                            <div id="date_time" class="form-group">
-                                <input class="form-control" name="pick_up_date" id="pick_up_date" type="date" placeholder="Pick up date" required>
-                            </div>
-                            
-                            <div class="form-group">
-                                <select class="form-control" placeholder="cars">
-                                  <option value="volvo">Volvo</option>
-                                  <option value="saab">Saab</option>
-                                  <option value="fiat">Fiat</option>
-                                  <option value="audi">Audi</option>
+                    <div class="panel panel-default">
+                      <div class="panel-heading">Courier</div>
+                      <div class="panel-body">
+                        <div class="form-group">
+                                <select class="form-control" placeholder="Select Courier">
+                                  <option >Select Courier</option>
+                                  <option value="volvo">STC Parcels</option>
+                                  <option value="saab">ABC Couriers</option>
+                                  <option value="fiat">Adenta Couriers</option>
+                                  <option value="audi">Agege DropOff</option>
                                 </select>
-                            </div>
-
-                            <div class="form-group">
-                                <textarea class="form-control" rows="2" placeholder="Notes"></textarea>
-                            </div>
-                            
-                            <div class="text-center">
-                                <button type="submit" class="btn btn-primary">MAKE A REQUEST</button>
-                            </div>
-
-                            </form>                               
                         </div>
-                        <div class="col-md-9">
+                      </div>
+                    </div>
+                    
+                    <div class="text-center">
+                      <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#myModal">MAKE A REQUEST</button>
+                    </div>
+
+                          
+               </div>
+               <div class="col-md-9">
                             <div id="map_canvas" class="map_div"></div>
-                        </div>
+               </div>
             </div>
         </div>
               
-
-
+        <!--Modal Dialog Form -->
+        <div id="myModal" class="modal fade" tabindex="-1" role="dialog">
+          <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+              <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title">#00001223: Request Confirmation</h4>
+              </div>
+              <div class="modal-body">
+                  <div class="row">
+                      <div class="col-md-4 col-lg-4 " align="center"> 
+                           <div class="panel status panel-info" style="border: 1px solid blue; border-radius: 4px;">
+                                <div class="panel-heading">
+                                    <h1 class="panel-title text-center">Ghs 34.0</h1>
+                                </div>
+                                <div class="panel-body text-center">                        
+                                    <strong>Total Charge</strong>
+                                </div>
+                            </div>
+                      </div>
+                      
+                      <div class=" col-md-8 col-lg-8 "> 
+                        <table class="table table-user-information">
+                          <tbody>
+                            <tr>
+                              <td></i>Pick-up Location:</td>
+                              <td>Accra Mall</td>
+                            </tr>
+                            <tr>
+                              <td>Drop-off Location:</td>
+                               <td>Tema Post office</td>
+                            </tr>
+                            <tr>
+                              <td>Pick-up Date:</td>
+                              <td>06/23/2013</td>
+                            </tr>
+                            <tr>
+                              <td>Courier</td>
+                              <td>STC Parcels</td>
+                            </tr>
+                           
+                              <td>Add a Note</td>
+                              <td><textarea class="form-control" rows="4" placeholder="Notes"></textarea></td>
+                                 
+                            </tr>
+                           
+                          </tbody>
+                        </table>
+                        
+                      </div>
+                    </div>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-labeled btn-danger" data-dismiss="modal"><span class="btn-label"><i class="glyphicon glyphicon-remove"></i></span>Cancel</button>
+                <button type="button" class="btn btn-labeled btn-success"><span class="btn-label"><i class="glyphicon glyphicon-ok"></i></span>Accept</button>
+              </div>
+            </div><!-- /.modal-content -->
+          </div><!-- /.modal-dialog -->
+        </div><!-- /.modal -->
        
             
 
 
         <!-- /.javascript files -->
-        <script src="js/jquery.js"></script>
-        <script src="js/bootstrap.min.js"></script>
+        <script type="text/javascript" src="js/app.js"></script>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.0.3/socket.io.slim.js"></script>
         <script src="js/bootstrap-datetimepicker.min.js"></script>
         <script src="js/custom.js"></script>
         <script src="js/jquery.sticky.js"></script>
@@ -151,7 +215,9 @@
         <script src="js/booking.js"></script>
         <script src="js/jquery.validate.min.js"></script> 
         <script>
-            new WOW().init();
+              new WOW().init();
+              //var socket = io();
+              
             
 
               var map,infoWindow;
@@ -160,13 +226,13 @@
               var inputA, inputB;
               var autocompleteA,autocompleteB;
               var directionsService,directionsDisplay;
-             
+              var markerArray = [];
               
               function initMap() {
                   
                 var mapOptions = {
                     center: {lat: 5.5885497, lng: -0.185424},
-                    zoom: 5,
+                    zoom: 6,
                     zoomControl: true,
                     mapTypeControl: false,
                     styles: styles['silverr'] //or 'night'
@@ -182,6 +248,7 @@
         
                 directionsDisplay.addListener('directions_changed', function() {
                   computeTotalDistance(directionsDisplay.getDirections());
+                  
                 });
                 //Define Markers
                 markerA = new google.maps.Marker({
@@ -201,10 +268,14 @@
                 inputA= document.getElementById('picking_up');
                 inputB= document.getElementById('dropping_off');
                 
-                var autocompleteA = new google.maps.places.Autocomplete(inputA);
+                var AutocompleteOptions = {
+                  componentRestrictions: {country: 'gh'}
+                 };
+
+                var autocompleteA = new google.maps.places.Autocomplete(inputA,AutocompleteOptions);
                     autocompleteA.bindTo('bounds', map);
 
-                var autocompleteB = new google.maps.places.Autocomplete(inputB);
+                var autocompleteB = new google.maps.places.Autocomplete(inputB,AutocompleteOptions);
                     autocompleteB.bindTo('bounds', map);
                 
                 google.maps.event.addListener(autocompleteA, 'place_changed', function() {
@@ -314,6 +385,10 @@
                 var myroute = result.routes[0];
                 for (var i = 0; i < myroute.legs.length; i++) {
                   total += myroute.legs[i].distance.value;
+                  
+                 var strA= geocodePosition(myroute.legs[i].start_location.lat()+ ',' + myroute.legs[i].start_location.lng());
+                  //geocodePosition('5.603042299999999,-0.17568630000005214');
+                  console.log(myroute.legs[i].start_location.lat()+ ',' + myroute.legs[i].start_location.lng());
                 }
                 total = total / 1000;
                 console.log('computeTotalDistance:'+ total + ' km');
@@ -340,9 +415,10 @@
             	};
               } 
               function hidePosition(position) {
-            	console.log('User denied the access of the position. Now we trying to get your location through your IP address.');
-            	ipPosition();
+              	console.log('User denied the access of the position. Now we trying to get your location through your IP address.');
+              	ipPosition();
               }
+              
               function ipPosition(){
             	$.get("http://ipinfo.io", function (response) {
             		var loc = response.loc.split(',');
@@ -352,92 +428,47 @@
             		};
             	}, "jsonp");
               }
-              function codeAddress() 
+              
+              function codeAddress(strAddress) //convert Address to LatLong 
               {
                 geocoder = new google.maps.Geocoder();
-              
-                var address = 'Accra';
                 
-                geocoder.geocode( { 'address': address}, function(results, status) {
+                geocoder.geocode( { 'address': strAddress}, function(results, status) {
+                  if (status == google.maps.GeocoderStatus.OK) {
+                      return results[0].geometry.location;
+                  } else {
+                      console.log('codeAddress was not successful for the following reason: ' + status);
+                  }
+                });
+              }
+            
+            function geocodePosition(inputlatlng) //convert LatLng to Address
+            { 
+              var geocoder = new google.maps.Geocoder();
+              
+              var latlngStr = inputlatlng.split(',', 2);
+              
+             
+              var latlng = {lat: parseFloat(latlngStr[0]), lng: parseFloat(latlngStr[1])};
+              
+               //console.log(latlng);
+              
+              geocoder.geocode({'location': latlng}, function(results, status) {
                 if (status == google.maps.GeocoderStatus.OK) {
-                  map = new google.maps.Map(document.getElementById('map_canvas'), {
-                        zoom: 16,
-                        streetViewControl: false,
-                        mapTypeControlOptions: {
-                        style: google.maps.MapTypeControlStyle.HORIZONTAL_BAR,
-                        mapTypeIds:[google.maps.MapTypeId.HYBRID, google.maps.MapTypeId.ROADMAP] 
-                },
-                center: results[0].geometry.location,
-                mapTypeId: google.maps.MapTypeId.ROADMAP
-                });
-                
-                map.setCenter(results[0].geometry.location);
-                var markerA = new google.maps.Marker({
-                map: map,
-                label : 'A',
-                position: results[0].geometry.location,
-                      draggable: true,
-                      title: 'Drag to set Pickup Location'
-                });
-                
-                updateMarkerPosition(results[0].geometry.location);
-                  geocodePosition(results[0].geometry.location);
-                    
-                  // Add dragging event listeners.
-                google.maps.event.addListener(markerA, 'dragstart', function() {
-                updateMarkerAddress('Dragging...');
-              });
-                  
-              google.maps.event.addListener(markerA, 'drag', function() {
-                updateMarkerStatus('Dragging...');
-                updateMarkerPosition(markerA.getPosition());
-              });
-              
-              google.maps.event.addListener(markerA, 'dragend', function() {
-                updateMarkerStatus('Drag ended');
-                geocodePosition(markerA.getPosition());
-                  map.panTo(markerA.getPosition()); 
-              });
-              
-              google.maps.event.addListener(map, 'click', function(e) {
-                updateMarkerPosition(e.latLng);
-                geocodePosition(markerA.getPosition());
-                markerA.setPosition(e.latLng);
-              map.panTo(markerA.getPosition()); 
-              }); 
-              
+                  if (results[1]) {
+                    return results[1].formatted_address;
+                  } else {
+                    console.log('GeocodePosition No results found');
+                  }
                 } else {
-                  alert('Geocode was not successful for the following reason: ' + status);
+                  console.log('geocodePosition failed due to: ' + status);
                 }
               });
+              
+              
             }
             
-            function geocodePosition(pos) {
-              geocoder.geocode({
-                latLng: pos
-              }, function(responses) {
-                if (responses && responses.length > 0) {
-                  updateMarkerAddress(responses[0].formatted_address);
-                } else {
-                  updateMarkerAddress('Cannot determine address at this location.');
-                }
-              });
-            }
-            
-            function updateMarkerStatus(str) {
-              document.getElementById('markerStatus').innerHTML = str;
-            }
-            
-            function updateMarkerPosition(latLng) {
-              document.getElementById('info').innerHTML = [
-                latLng.lat(),
-                latLng.lng()
-              ].join(', ');
-            }
-            
-            function updateMarkerAddress(str) {
-              document.getElementById('picking_up').value = str;
-            }
+           
             
     var styles = {
         default: null,

@@ -2,6 +2,8 @@
 
 // grab the models we just created
 var User = require('./models/user.js');
+var Booking = require('./models/booking.js');
+var Courier = require('./models/courier.js');
 
 module.exports = function(app, passport) {
 
@@ -18,55 +20,11 @@ module.exports = function(app, passport) {
         });
         
         
-        //-=======================User Register API------------===============================
-        app.post('/api/register', function(req, res) {
-            if (!req.body.username || !req.body.password) {
-              res.json({success: false, msg: 'Please enter name and password.'});
-            } else {
-              var newUser = new User({
-                name: req.body.username,
-                password: req.body.password
-              });
-              // save the user
-              newUser.save(function(err) {
-                if (err) {
-                  return res.json({success: false, msg: 'Username already exists.'});
-                }
-                res.json({success: true, msg: 'Successful created new user.'});
-              });
-            }
-          });
-          //=====================================================================================
-          // route to authenticate a user (POST http://localhost:8080/api/authenticate)
-          app.post('/api/authenticate', function(req, res) {
-            User.findOne({
-              name: req.body.name
-            }, function(err, user) {
-              if (err) throw err;
-           
-              if (!user) {
-                res.send({success: false, msg: 'Authentication failed. User not found.'});
-              } else {
-                // check if password matches
-                user.comparePassword(req.body.password, function (err, isMatch) {
-                  if (isMatch && !err) {
-                    // if user is found and password is right create a token
-                    var token = jwt.encode(user, secret);
-                    // return the information including token as JSON
-                    res.json({success: true, token: 'JWT ' + token});
-                  } else {
-                    res.send({success: false, msg: 'Authentication failed. Wrong password.'});
-                  }
-                });
-              }
-            });
-          });
-          
-          
+       
           //======================================================================
           //==============Get login User----------------------------------------
           //=================================================================================
-          app.get('/api/user',function(req, res) {
+          app.get('/api/login-user',function(req, res) {
             
             if(req.user)
             {
@@ -74,6 +32,8 @@ module.exports = function(app, passport) {
               //console.log(req.user.displayName); 
             }
           });
+          
+          
           // =====================================
           // HOME PAGE (with login links) ========
           // =====================================
@@ -166,6 +126,18 @@ module.exports = function(app, passport) {
           app.get('/partner', function(req, res) {
               res.sendfile('./client/taxi.html'); // load the index.html file
           });
+           // =====================================
+          // Booking PAGE (with login links) ========
+          // =====================================
+          app.get('/bookings', function(req, res) {
+              res.sendfile('./client/my-booking.html'); // load the index.html file
+          });
+          // =====================================
+          // Payments PAGE (with login links) ========
+          // =====================================
+          app.get('/payments', function(req, res) {
+              res.sendfile('./client/my-payment.html'); // load the index.html file
+          });
           // =====================================
           // Agent PAGE (with login links) ========
           // =====================================
@@ -221,51 +193,106 @@ module.exports = function(app, passport) {
           }
           
           
-          //=========================================================================================================
+      //=========================================================================================================
         
         
-        /* GET /Agent listing. */
+        /* GET /User listing. */
         
-        /* POST /todos */
-        app.post('/api/kpi', function(req, res, next) {
+        /* POST /user */
+        app.post('/api/user', function(req, res, next) {
           User.create(req.body, function (err, data) {
             if (err) return next(err);
             res.json(data);
           });
         });
         
-        /* GET /todos/id */
-        app.get('/api/kpi/:id', function(req, res, next) {
+        /* GET /user/id */
+        app.get('/api/user/:id', function(req, res, next) {
           User.findById(req.params.id, function (err, data) {
             if (err) return next(err);
             res.json(data);
           });
         });
         
-        /* PUT /todos/:id */
-        app.put('/api/kpi/:id', function(req, res, next) {
+        /* PUT /user/:id */
+        app.put('/api/user/:id', function(req, res, next) {
           User.findByIdAndUpdate(req.params.id, req.body, function (err, data) {
             if (err) return next(err);
             res.json(data);
           });
         });
         
-        // route to handle delete goes here (app.delete)
-        /* DELETE /todos/:id */
-        app.delete('/api/kpi/:id', function(req, res, next) {
+        /* DELETE /user/:id */
+        app.delete('/api/user/:id', function(req, res, next) {
           User.findByIdAndRemove(req.params.id, req.body, function (err, data) {
             if (err) return next(err);
             res.json(data);
           });
         });
         
-       
-       
-
-        // frontend routes =========================================================
-        // route to handle all angular requests
-      /*  app.get('*', function(req, res) {
-            res.sendfile('./client/index.html'); // load our public/index.html file
+    //================Courier api=====================================================================================   
+    app.post('/api/agent', function(req, res, next) {
+          Courier.create(req.body, function (err, data) {
+            if (err) return next(err);
+            res.json(data);
+          });
         });
-       */ 
-    };
+        
+        /* GET /agent/id */
+        app.get('/api/agent/:id', function(req, res, next) {
+          Courier.findById(req.params.id, function (err, data) {
+            if (err) return next(err);
+            res.json(data);
+          });
+        });
+        
+        /* PUT /agent/:id */
+        app.put('/api/agent/:id', function(req, res, next) {
+          Courier.findByIdAndUpdate(req.params.id, req.body, function (err, data) {
+            if (err) return next(err);
+            res.json(data);
+          });
+        });
+        
+        /* DELETE /agent/:id */
+        app.delete('/api/agent/:id', function(req, res, next) {
+          Courier.findByIdAndRemove(req.params.id, req.body, function (err, data) {
+            if (err) return next(err);
+            res.json(data);
+          });
+        });   
+      
+      //================Booking api=====================================================================================   
+    app.post('/api/booking', function(req, res, next) {
+          Booking.create(req.body, function (err, data) {
+            if (err) return next(err);
+            res.json(data);
+          });
+        });
+        
+        /* GET /agent/id */
+        app.get('/api/booking/:id', function(req, res, next) {
+          Booking.findById(req.params.id, function (err, data) {
+            if (err) return next(err);
+            res.json(data);
+          });
+        });
+        
+        /* PUT /agent/:id */
+        app.put('/api/booking/:id', function(req, res, next) {
+          Booking.findByIdAndUpdate(req.params.id, req.body, function (err, data) {
+            if (err) return next(err);
+            res.json(data);
+          });
+        });
+        
+        /* DELETE /agent/:id */
+        app.delete('/api/booking/:id', function(req, res, next) {
+          Booking.findByIdAndRemove(req.params.id, req.body, function (err, data) {
+            if (err) return next(err);
+            res.json(data);
+          });
+        }); 
+        
+    
+};

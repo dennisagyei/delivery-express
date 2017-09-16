@@ -562,6 +562,20 @@ margin-top: 0px;
     color: white;
 }
 
+.btn-accept {
+    font-size: 15px;
+    padding: 7px 35px;
+    height: 35px;
+    background: #3eb0f7;
+    transition: all 0.4s;
+    color: white;
+    border-radius: 4px;	
+}
+.btn-accept:hover {
+    background: #1f96e0;
+    color: white;
+}
+
 .feature-pp{
     padding-bottom: 100px;
 }
@@ -706,7 +720,32 @@ margin-top: 0px;
     transition: all .8s ease;
 }
 
+.table-user-information > tbody > tr {
+    border-top: 1px solid rgb(221, 221, 221);
+}
 
+.table-user-information > tbody > tr:first-child {
+    border-top: 0;
+}
+
+
+.table-user-information > tbody > tr > td {
+    border-top: 0;
+}
+
+.status {
+    font-family: 'Source Sans Pro', sans-serif;
+}
+.status .panel-title {
+    font-family: 'Oswald', sans-serif;
+    font-size: 48px;
+    font-weight: bold;
+    line-height: 45px;
+    padding-top: 20px;
+    letter-spacing: -0.8px;
+}
+.btn-label {position: relative;left: -12px;display: inline-block;padding: 6px 12px;background: rgba(0,0,0,0.15);border-radius: 3px 0 0 3px;}
+.btn-labeled {padding-top: 0;padding-bottom: 0;}
 #footer {
     background: #5A5A5A ;  
 padding: 35px 0px;
@@ -892,7 +931,7 @@ right: 0px;
 .table > tbody > tr > td { 
     font-size: 15px; 
     font-weight: 300; 
-    padding: 20px 20px; 
+    padding: 10px 10px; 
 }
 .table-bg > tbody > tr:nth-child(odd) > td, 
 .table-bg > tbody > tr:nth-child(odd) > th { 
@@ -1518,8 +1557,8 @@ Asside widgets CSS
 .panel {
     margin-bottom: 20px;
     background-color: #FFF;
-    border: transparent;
-    border-radius: 0px;
+    
+    border-radius: 4px;
     box-shadow: 0px 1px 1px rgba(0, 0, 0, 0);
 }
 .panel.sidebar-menu ul.nav ul {
@@ -1733,7 +1772,7 @@ a i.fa, button i.fa {
 }
 textarea{
     border-radius: 0px !important;
-    height: 150px !important;
+
 }
 .sign-in ,.register{
     padding: 15px;
