@@ -231,8 +231,16 @@ module.exports = function(app, passport) {
         });
         
     //================Courier api=====================================================================================   
-    app.post('/api/agent', function(req, res, next) {
+        app.post('/api/agent', function(req, res, next) {
           Courier.create(req.body, function (err, data) {
+            if (err) return next(err);
+            res.json(data);
+          });
+        });
+        
+        /* GET /agent */
+        app.get('/api/agent', function(req, res, next) {
+          Courier.find(function (err, data) {
             if (err) return next(err);
             res.json(data);
           });
@@ -263,14 +271,14 @@ module.exports = function(app, passport) {
         });   
       
       //================Booking api=====================================================================================   
-    app.post('/api/booking', function(req, res, next) {
+        app.post('/api/booking', function(req, res, next) {
           Booking.create(req.body, function (err, data) {
             if (err) return next(err);
             res.json(data);
           });
         });
         
-        /* GET /agent/id */
+        /* GET /booking/id */
         app.get('/api/booking/:id', function(req, res, next) {
           Booking.findById(req.params.id, function (err, data) {
             if (err) return next(err);
@@ -278,7 +286,15 @@ module.exports = function(app, passport) {
           });
         });
         
-        /* PUT /agent/:id */
+        /* GET /booking/ */
+        app.get('/api/booking', function(req, res, next) {
+          Booking.find( function (err, data) {
+            if (err) return next(err);
+            res.json(data);
+          });
+        });
+        
+        /* PUT /booking/:id */
         app.put('/api/booking/:id', function(req, res, next) {
           Booking.findByIdAndUpdate(req.params.id, req.body, function (err, data) {
             if (err) return next(err);
@@ -286,7 +302,7 @@ module.exports = function(app, passport) {
           });
         });
         
-        /* DELETE /agent/:id */
+        /* DELETE /booking/:id */
         app.delete('/api/booking/:id', function(req, res, next) {
           Booking.findByIdAndRemove(req.params.id, req.body, function (err, data) {
             if (err) return next(err);
