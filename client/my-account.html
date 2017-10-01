@@ -116,7 +116,7 @@
                       <div class="panel-heading"> Select Courier/Pick-up Date</div>
                       <div class="panel-body">
                         <div class="form-group">
-                          <select class="form-control" placeholder="Select Courier"  ng-model="booking.courier" required>
+                          <select class="form-control" name="selectcourier" id="selectcourier"  ng-model="booking.courier" required>
                             <option ng-repeat="x in couriers" value="{{x._id}}">{{x.name}}</option>
                           </select>
                         </div>
@@ -165,11 +165,11 @@
                           <tbody>
                             <tr>
                               <td></i>Pick-up Location:</td>
-                              <td>{{ booking.picking_up }}</td>
+                              <td>{{ start_address }}</td>
                             </tr>
                             <tr>
                               <td>Drop-off Location:</td>
-                               <td>{{ booking.dropping_off }}</td>
+                               <td>{{ end_address }}</td>
                             </tr>
                             <tr>
                               <td>Pick-up Date:</td>
@@ -177,7 +177,7 @@
                             </tr>
                             <tr>
                               <td>Courier</td>
-                              <td>{{ booking.courier }}</td>
+                              <td>{{ courier }}</td>
                             </tr>
                            
                               <td>Add a Note</td>

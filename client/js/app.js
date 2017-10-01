@@ -73,6 +73,15 @@ app.controller("MainCtrl",function($scope,$http,agentFactory){
     
     $scope.couriers=agentFactory.query();
     
+    $scope.getCourierByID=function(varID){
+        
+        var response=agentFactory.get({id: varID });
+            response.$promise.then(function(data) {
+                $scope.selectedCourier=data.toJSON();
+                console.log($scope.selectedCourier);
+            });
+    }
+    
     function getRandomInt(min, max) {
         return Math.floor(Math.random() * (max - min + 1)) + min;
     }
@@ -80,6 +89,8 @@ app.controller("MainCtrl",function($scope,$http,agentFactory){
     $scope.confirmItem = function(Item){
      
         $scope.invoice_no=getRandomInt(199999,3999999);   
+        
+        $scope.courier=$("#selectcourier option:selected" ).text();
         
         if (Item)
         {
@@ -92,6 +103,9 @@ app.controller("MainCtrl",function($scope,$http,agentFactory){
                 $('#dropping_off').popover('show');
                 return;
             } else {
+                
+                $scope.getCourierByID(Item.courier);
+                console.log($scope.selectedCourier);
                 $('#confirmModal').modal();
             }
         }
@@ -155,31 +169,62 @@ app.controller("MainCtrl",function($scope,$http,agentFactory){
                       } 
                     });
     }
+    
+    function geocodePosition(inputlatlng) //convert LatLng to Address
+    { 
+              var geocoder = new google.maps.Geocoder();
               
+              var latlngStr = inputlatlng.split(',', 2);
+              
+             
+              var latlng = {lat: parseFloat(latlngStr[0]), lng: parseFloat(latlngStr[1])};
+              
+               //console.log(latlng);
+              
+              geocoder.geocode({'location': latlng}, function(results, status) {
+                if (status == google.maps.GeocoderStatus.OK) {
+                  if (results[1]) {
+                    return results[1].formatted_address;
+                  } else {
+                    console.log('GeocodePosition No results found');
+                  }
+                } else {
+                  console.log('geocodePosition failed due to: ' + status);
+                }
+              });
+              
+    }
+    
     function computeTotalDistance(result) {
-                console.log(result);
-                var totalDistance = 0;
-                var totalDuration = 0;
+                //console.log(result);
+                $scope.totalDistance = 0;
+                $scope.totalDuration = 0;
                 var myroute = result.routes[0];
                 
                 for (var i = 0; i < myroute.legs.length; i++) {
-                    totalDistance += myroute.legs[i].distance.value;
-                    totalDuration += myroute.legs[i].duration.value;
+                    $scope.totalDistance += myroute.legs[i].distance.value;
+                    $scope.totalDuration += myroute.legs[i].duration.value;
                     
                     
                     //var strA= geocodePosition(myroute.legs[i].start_location.lat()+ ',' + myroute.legs[i].start_location.lng());
                     //geocodePosition('5.603042299999999,-0.17568630000005214');
-                    var start_pos= myroute.legs[i].start_location.lat()+ ',' + myroute.legs[i].start_location.lng();
-                    var end_pos= myroute.legs[i].end_location.lat()+ ',' + myroute.legs[i].end_location.lng();
+                    $scope.start_pos= myroute.legs[i].start_location.lat()+ ',' + myroute.legs[i].start_location.lng();
+                    $scope.end_pos= myroute.legs[i].end_location.lat()+ ',' + myroute.legs[i].end_location.lng();
+                    
+                    $scope.start_address=myroute.legs[i].start_address;
+                    $scope.end_address=myroute.legs[i].end_address;
+                    
+                    //document.getElementById('picking_up').value=$scope.start_address;
+                    //document.getElementById('dropping_off').value=$scope.end_address;
                 }
                 
                 
-                console.log('computeTotalDistance:'+ totalDistance);
-                console.log('computeTotalDuration:'+ totalDuration);
-                console.log('pick-up loc:'+ result.request.origin.query);
-                console.log('pick-up point:'+ start_pos);
-                console.log('Drop-off Loc:'+ result.request.destination.query );
-                console.log('drop-off point:'+ end_pos);
+                //console.log('computeTotalDistance:'+ totalDistance);
+                //console.log('computeTotalDuration:'+ totalDuration);
+                //console.log('pick-up loc:'+ result.request.origin.query);
+                //console.log('pick-up point:'+ start_pos);
+                //console.log('Drop-off Loc:'+ result.request.destination.query );
+                //console.log('drop-off point:'+ end_pos);
     }
               
     function deleteMarkers() {
