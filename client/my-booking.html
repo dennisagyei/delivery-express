@@ -22,6 +22,10 @@
         
         <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.6/angular.min.js"></script>
         <script type="text/javascript" src="js/angular-resource.min.js"></script>
+        <script type="text/javascript" src="js/angular-animate.min.js"></script>
+        
+        <script src="https://unpkg.com/angular-toastr/dist/angular-toastr.tpls.js"></script>
+        <link rel="stylesheet" href="https://unpkg.com/angular-toastr/dist/angular-toastr.css" />
         
         <!-- Google Fonts -->
         <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato:100,300,400,700,900,100italic,300italic,400italic,700italic,900italic" />
@@ -48,7 +52,7 @@
 
                         <!-- /.main title -->
                         <h2 class="wow fadeInUp" style="margin-bottom: 50px">
-                            Bookings for :{{ Dennis }}
+                            Bookings for :{{ login_name }}
                         </h2>
 
                     </div>
@@ -81,7 +85,6 @@
                                      <a class="dropdown-toggle" data-toggle="dropdown" data-hover="dropdown" data-delay="200" href="/home">Menu <b class="caret"></b> </a>
                                      <ul class="dropdown-menu navbar-nav">
                                         <li><a href="/home">New Bookings</a></li>
-                                            <li><a href="/bookings">My Bookings</a></li>
                                             <li><a href="/payments">Payments</a></li>
                                             <li><a href="/profile">Profile</a></li> 
                                             <li><a href="/logout">Sign out</a></li>
@@ -105,26 +108,35 @@
                       <th>Charge Amt</th>
                       <th>Courier</th>
                       <th>Delivery date</th>
+                    
                       <th>Status</th>
+                      <th></th>
                   </tr>
               </thead>
              
               <tbody>
-                  <tr>
-                      <td>0000000002121</td>
-                      <td>2011/04/25</td>
-                      <td>150</td>
-                      <td>ABC Couriers</td>
-                      <td>2011/04/25</td>
-                      <td><span class="label label-primary">Payment pending</span></td>
-                  </tr>
                   <tr ng-repeat="x in bookings">
-                      <td>{{ x.booking_id }}</td>
-                      <td>{{ x.createdAt }}</td>
-                      <td>{{ x.charge }}</td>
+                      <td>00000{{ x.booking_id }}</td>
+                      <td>{{ x.createdAt | date : "dd-MM-yyyy" }}</td>
+                      <td>{{ x.charge }}.0</td>
                       <td>{{ x.courier }}</td>
-                      <td>{{ }}</td>
-                      <td><span class="label label-primary"> {{ x.status }}</span></td>
+                      <td>{{ x.delivery_date }}</td>
+                      
+                      <td><span class="label label-primary"> {{ x.status | custBookingStatus}}</span></td>
+                      <td>
+                            <div class="btn-group">
+                                <button type="button" class="btn dropdown-toggle" data-toggle="dropdown">
+                                  <span class="caret"></span>
+                                </button>
+                            <ul class="dropdown-menu" role="menu">
+                              <li><a href="" ng-click="ShowBookingSummary(x._id)">Booking Summary</a></li>
+                              <li><a href="" ng-click="CancelBooking(x._id)">Cancel Booking</a></li>
+                              <li><a href="/payments">Make Payments</a></li>
+                              <li><a href="" ng-click="ShowMapView(x.start_loc,x.drop_loc)">View Map(iTrack)</a></li>
+                              
+                            </ul>
+                          </div>
+                      </td>
                   </tr>
                 
                  
@@ -132,9 +144,43 @@
           </table>
          </div>
          </div>
-              
         
-
+        <!-- Booking Summary Modal -->
+        <div id="BookingSummaryModal" class="modal fade" role="dialog">
+          <div class="modal-dialog">
+            <div class="modal-content">
+              <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Booking Summary</h4>
+              </div>
+              <div class="modal-body">
+                <p>Some text in the modal.</p>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+              </div>
+            </div>
+        
+          </div>
+        </div> 
+        
+        <!-- View Map Modal -->
+        <div id="MapViewModal" class="modal fade" role="dialog">
+          <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+              <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">iTracking Map</h4>
+              </div>
+              <div class="modal-body">
+                  <div id="MapView" style="width:100%; height:350px">
+                      
+                  </div>
+              </div>
+            </div>
+        
+          </div>
+        </div> 
         <!-- /.javascript files -->
         <script type="text/javascript" src="js/app.js"></script>
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
@@ -158,9 +204,12 @@
                         "ordering": false,
                         "info":     false
                   });
+                  
+                  
               } );
 
-          
+            
         </script>
+        <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyC9H_SZmYKPM0TXnnnHxcRPMJyYjf00rvs&libraries=places"></script>
     </body>
 </html>

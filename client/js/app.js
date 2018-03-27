@@ -1,6 +1,5 @@
 //console.clear();
-
-var app = angular.module('app', ['ngResource']);
+var app = angular.module('app', ['ngResource','ngAnimate','toastr']);
 
 
 app.filter('custNumFormat',function (){
@@ -15,6 +14,28 @@ app.filter('custNumFormat',function (){
         }else
         {
             resp='Ghs'+input;
+        }
+        
+        return resp;
+        
+    }
+});
+
+app.filter('custBookingStatus',function (){
+    
+    return function(input) {
+        
+        var resp = '';
+        
+        if (input=='0')
+        {
+            resp='Order Pending';
+        }else if (input=='1')
+        {
+            resp= 'Order Confirmed';
+        }else if (input=='2')
+        {
+            resp= 'Order Cancelled';
         }
         
         return resp;
@@ -62,12 +83,18 @@ app.factory('agentFactory',function($resource){
    
 });
 
-app.controller("MainCtrl",function($scope,$http,agentFactory){
+app.controller("MainCtrl",function($scope,$http,$window,agentFactory,bookingFactory){
 
     //get login user details
     $http.get('/api/login-user')
     .then(function(response) {
         $scope.login_user = response.data;
+        
+        if ($scope.login_user.facebook){
+            $scope.login_name=$scope.login_user.facebook.name;
+        } else if($scope.login_user.local){
+             $scope.login_name=$scope.login_user.local.name;
+        }
         //console.log( $scope.login_user);
     });
     
@@ -79,7 +106,12 @@ app.controller("MainCtrl",function($scope,$http,agentFactory){
             response.$promise.then(function(data) {
                 $scope.selectedCourier=data.toJSON();
                 console.log($scope.selectedCourier);
+                console.log('charge:' + $scope.CalcTotalCharge());
             });
+    }
+    
+    $scope.CalcTotalCharge=function(){
+        return ($scope.totalDistance/1000.0)*$scope.selectedCourier.charge;
     }
     
     function getRandomInt(min, max) {
@@ -91,6 +123,8 @@ app.controller("MainCtrl",function($scope,$http,agentFactory){
         $scope.invoice_no=getRandomInt(199999,3999999);   
         
         $scope.courier=$("#selectcourier option:selected" ).text();
+        $scope.selected_date=$("#pick_up_date" ).val();
+        
         
         if (Item)
         {
@@ -104,8 +138,8 @@ app.controller("MainCtrl",function($scope,$http,agentFactory){
                 return;
             } else {
                 
-                $scope.getCourierByID(Item.courier);
-                console.log($scope.selectedCourier);
+                $scope.selectedCharge=Math.round($scope.CalcTotalCharge());
+                //console.log($scope.selectedCourier);
                 $('#confirmModal').modal();
             }
         }
@@ -118,6 +152,36 @@ app.controller("MainCtrl",function($scope,$http,agentFactory){
         }
     }; 
     
+    
+    $scope.SaveItem = function () {
+        
+        Item={};
+        
+        Item.booking_id=$scope.invoice_no;
+        Item.charge=$scope.selectedCharge;
+        Item.pickup_date=$scope.selected_date;
+        Item.start_loc=[$scope.start_pos_lat,$scope.start_pos_lng];
+        Item.drop_loc=[$scope.end_pos_lat,$scope.end_pos_lng];
+        Item.start_address=$scope.start_address;
+        Item.end_address=$scope.end_address;
+        Item.distance=$scope.totalDistance;
+        Item.duration=$scope.totalDuration;
+        Item.comments=$("#notes").val();
+        Item.courier_id=$scope.selectedCourier._id;
+        Item.courier=$scope.selectedCourier.name;
+        Item.status=0;
+        Item.user_id=$scope.login_user._id;
+        
+        bookingFactory.create(Item);
+        $scope.messages = 'New Courier has been created!'; 
+        console.log(Item);
+        
+        $('#confirmModal').modal('hide');
+        
+        $window.location.assign('/bookings');
+        
+
+    };
     
     ////////////////////////MAP CODE//////////////////////////////////////////////////////
     
@@ -197,8 +261,8 @@ app.controller("MainCtrl",function($scope,$http,agentFactory){
     
     function computeTotalDistance(result) {
                 //console.log(result);
-                $scope.totalDistance = 0;
-                $scope.totalDuration = 0;
+                $scope.totalDistance = 0;  //in meters
+                $scope.totalDuration = 0;  //in seconds
                 var myroute = result.routes[0];
                 
                 for (var i = 0; i < myroute.legs.length; i++) {
@@ -209,7 +273,12 @@ app.controller("MainCtrl",function($scope,$http,agentFactory){
                     //var strA= geocodePosition(myroute.legs[i].start_location.lat()+ ',' + myroute.legs[i].start_location.lng());
                     //geocodePosition('5.603042299999999,-0.17568630000005214');
                     $scope.start_pos= myroute.legs[i].start_location.lat()+ ',' + myroute.legs[i].start_location.lng();
+                    $scope.start_pos_lat= myroute.legs[i].start_location.lat();
+                    $scope.start_pos_lng= myroute.legs[i].start_location.lng();
+                    
                     $scope.end_pos= myroute.legs[i].end_location.lat()+ ',' + myroute.legs[i].end_location.lng();
+                    $scope.end_pos_lat= myroute.legs[i].end_location.lat();
+                    $scope.end_pos_lng= myroute.legs[i].end_location.lng();
                     
                     $scope.start_address=myroute.legs[i].start_address;
                     $scope.end_address=myroute.legs[i].end_address;
@@ -367,10 +436,109 @@ app.controller("ProfileCtrl",function($scope,$http,userFactory){
      
 });
 
-app.controller("BookingCtrl",function($scope,$http,bookingFactory){
+app.controller("BookingCtrl",function($scope,$http,bookingFactory,toastr){
     
+    //get login user details
+    $http.get('/api/login-user')
+    .then(function(response) {
+        $scope.login_user = response.data;
+        
+        if ($scope.login_user.facebook){
+            $scope.login_name=$scope.login_user.facebook.name;
+        } else if($scope.login_user.local){
+             $scope.login_name=$scope.login_user.local.name;
+        }
+        //console.log( $scope.login_user);
+    });
+    
+    
+    ///Prepare Map View Map
+    
+    function initializeMap()
+    {
+        
+        var mapOptions = {
+                    center: {lat :5.7000, lng : -0.0333},
+                    zoom: 10,
+                    mapTypeControl: false,
+                    mapTypeId: google.maps.MapTypeId.ROADMAP
+                };
+                
+        $scope.iTrackMap = new google.maps.Map(document.getElementById('MapView'), mapOptions);
+        
+        //Trigger Map resize upon modal display to prevent grey shown
+        $('#MapViewModal').on('shown.bs.modal', function () {
+            google.maps.event.trigger($scope.iTrackMap, "resize"); 
+            
+            $http.get("https://ipinfo.io")
+            .then(function(response) {
+
+            var loc = response.data.loc.split(',');
+            	var	pos = {
+            			lat: parseFloat(loc[0]),
+            			lng: parseFloat(loc[1])
+            		};
+            		
+            	$scope.iTrackMap.setCenter(pos);
+             });
+            
+        });
+    }
+    //Populate table of bookings
     $scope.bookings=bookingFactory.query();
     
+    
+    initializeMap();
+    //Cancel Booking Function
+    $scope.CancelBooking = function (booking_id){
+        
+        bookingFactory.update({id: booking_id }, {status : 2});
+        toastr.success('Booking updated successfully!','Potomanto',{
+            closeButton: true,
+            positionClass: 'toast-top-left',
+        });
+        $scope.bookings=bookingFactory.query();
+    };
+    
+    $scope.ShowMapView = function (origin_add,destination_add){
+                    
+                    
+                    directionsService = new google.maps.DirectionsService();
+                    directionsDisplay = new google.maps.DirectionsRenderer({draggable: true,map: $scope.iTrackMap});
+                    
+                    var start = origin_add[0] + ',' + origin_add[1];
+                    var end = destination_add[0] + ',' + destination_add[1];;                
+                    
+                    var request = {
+                      destination: end,
+                      origin: start,
+                      optimizeWaypoints: true,
+                      travelMode: 'DRIVING'
+                    };
+            
+                    // Pass the directions request to the directions service.
+                    directionsService.route(request, function(response, status) {
+                      if (status == 'OK') {
+                        // Display the route on the map.
+                        directionsDisplay.setMap(null);
+                        directionsDisplay.setMap($scope.iTrackMap);
+                        directionsDisplay.setDirections(response);
+                        
+                        //$scope.iTrackMap.setZoom(11);
+                        
+                        //deleteMarkers();
+                      }else {
+                        console.log('Directions request failed due to ' + status);
+                      } 
+                    });       
+    
+        
+        $('#MapViewModal').modal();
+    };
+    
+    $scope.ShowBookingSummary = function (booking_id){
+        $('#BookingSummaryModal').modal();
+    };
     
 });
 

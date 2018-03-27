@@ -5,15 +5,18 @@ var BookingSchema = new mongoose.Schema({
   charge: { type: Number },
   delivery_date : { type: Date },
   pickup_date : { type: Date },
-  start_loc: {type: [Number], required: true}, // [Long, Lat]
-  drop_loc: {type: [Number], required: true}, // [Long, Lat]
+  start_loc: {type: [Number]}, // [Long, Lat] //, required: true
+  drop_loc: {type: [Number]}, // [Long, Lat]
+  start_address: String,
+  end_address: String,
   distance : Number, //in metres. divid by 1000 to get km
   duration : Number, // in seconds
   comments : { type: String },
   courier : { type: String },
   courier_id : { type: mongoose.Schema.Types.ObjectId },
-  status : String,
-  confirmed : Number
+  status : Number,  //0-Order Pending // 1-Order Accepted //
+  confirmed : Number,
+  user_id : { type: mongoose.Schema.Types.ObjectId }
 },
 {
   timestamps: true
@@ -22,3 +25,4 @@ var BookingSchema = new mongoose.Schema({
 BookingSchema.index({start_loc: '2dsphere'});
 // create model if not exists.
 module.exports = mongoose.model('Booking', BookingSchema);
+  
